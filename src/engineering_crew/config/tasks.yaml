@@ -1,0 +1,102 @@
+design_task:
+  description: >
+    Take the high level requirements described here and prepare a detailed design for the engineer;
+    everything should be in 1 python module, but outline the classes and methods in the module.
+    Here are the requirements: {requirements}
+    IMPORTANT: Only output the design in markdown format, laying out in detail the classes and functions in the module, describing the functionality.
+  expected_output: >
+    A detailed design for the engineer, identifying the classes and functions in the module.
+  agent: engineering_lead
+  output_file: output/{module_name}_design.md
+
+code_task:
+  description: >
+    Write a python module that implements the design described by the engineering lead, in order to achieve the requirements.
+    Here are the requirements: {requirements}
+  expected_output: >
+    A python module that implements the design and achieves the requirements.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid Python code that can be directly saved to a file and executed.
+  agent: backend_engineer
+  context:
+    - design_task
+  output_file: output/src/{module_name}
+
+frontend_task:
+  description: >
+    Write a Streamlit UI in a module app.py that demonstrates the given backend class in {module_name}.
+    Assume there is only 1 user, and keep the UI very simple indeed - just a prototype or demo.
+    Here are the requirements: {requirements}
+  expected_output: >
+    A Streamlit UI in module app.py that demonstrates the given backend class.
+    The file should be ready so that it can be run as-is, in the same directory as the backend module, and it should import the backend class from {module_name}.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid Python code that can be directly saved to a file and executed.
+  agent: frontend_engineer
+  context:
+    - code_task
+  output_file: output/src/app.py
+
+test_task:
+  description: >
+    Write unit tests for the given backend module {module_name} and create a test_{module_name} in the same directory as the backend module.
+  expected_output: >
+    A test_{module_name} module that tests the given backend module.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid Python code that can be directly saved to a file and executed.
+  agent: test_engineer
+  context:
+    - code_task
+  output_file: output/src/test_{module_name}
+
+dependencies_task:
+  description: >
+    Write a requirements.txt file that lists the dependencies for the given backend module {module_name} and the streamlit UI in app.py.
+  expected_output: >
+    A requirements.txt file that lists the dependencies for the given backend module and the streamlit UI.
+    IMPORTANT: Output ONLY the raw text without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid text that can be directly saved to a file and executed.
+  agent: devops_engineer
+  context:
+    - code_task
+    - frontend_task
+  output_file: output/src/requirements.txt
+
+containerize_task:
+  description: >
+    Write a Dockerfile to run the streamlit UI in app.py.  Required dependencies such as streamLit should be installed when the container is built. 
+    The Dockerfile should be in the same directory as the backend module {module_name} and the app.py file.
+  expected_output: >
+    A Dockerfile that runs the streamlit UI in app.py.
+    IMPORTANT: Output ONLY the raw Dockerfile code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid Dockerfile code that can be directly saved to a file and executed.
+  agent: devops_engineer
+  context:
+    - frontend_task
+    - dependencies_task
+  output_file: output/src/Dockerfile
+
+bash_script_task:
+  description: >
+    Write a bash script to launch the docker container that runs the streamlit UI.
+  expected_output: >
+    A helper bash script to launch the docker container that runs the streamlit UI.
+    IMPORTANT: Output ONLY the raw script code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid script code that can be directly saved to a file and executed.
+  agent: devops_engineer
+  context:
+    - containerize_task
+  output_file: output/src/run.sh
+
+powershell_script_task:
+  description: >
+    Write a powershell script to launch the docker container that runs the streamlit UI.
+  expected_output: >
+    A helper powershell script to launch the docker container that runs the streamlit UI.
+    IMPORTANT: Output ONLY the raw script code without any markdown formatting, code block delimiters, or backticks.
+    The output should be valid script code that can be directly saved to a file and executed.
+    IMPORTANT: You must never put a space between the colon and container port like this example
+    docker run --rm -p $HostPort`: $ContainerPort $ImageName
+  context:
+    - containerize_task
+  output_file: output/src/run.ps1
