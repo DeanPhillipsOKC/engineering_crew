@@ -1,7 +1,15 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from .tools.tasks import AddTaskTool, ListTasksTool
+from pydantic import BaseModel
 
+class EngineeringTask(BaseModel):
+    id: str
+    description: str
+    completed: bool = False
 
+class EngineeringTasks(BaseModel):
+    tasks: list[EngineeringTask]
 
 @CrewBase
 class EngineeringTeam():
@@ -15,41 +23,16 @@ class EngineeringTeam():
         return Agent(
             config=self.agents_config['engineering_lead'],
             verbose=True,
+            tools=[
+                AddTaskTool(),
+                ListTasksTool(),
+            ],
         )
 
     @agent
     def backend_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['backend_engineer'],
-            verbose=True,
-            allow_code_execution=True,
-            code_execution_mode="safe",  # Uses Docker for safety
-            max_execution_time=120, 
-            max_retry_limit=3 
-        )
-    
-    @agent
-    def frontend_engineer(self) -> Agent:
-        return Agent(
-            config=self.agents_config['frontend_engineer'],
-            verbose=True,
-        )
-    
-    @agent
-    def test_engineer(self) -> Agent:
-        return Agent(
-            config=self.agents_config['test_engineer'],
-            verbose=True,
-            allow_code_execution=True,
-            code_execution_mode="safe",  # Uses Docker for safety
-            max_execution_time=120, 
-            max_retry_limit=3 
-        )
-
-    @agent
-    def devops_engineer(self) -> Agent:
-        return Agent(
-            config=self.agents_config['devops_engineer'],
             verbose=True,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
@@ -64,53 +47,26 @@ class EngineeringTeam():
         )
 
     @task
-    def code_task(self) -> Task:
+    def task_creation_task(self) -> Task:
         return Task(
-            config=self.tasks_config['code_task'],
-        )
-
-    @task
-    def frontend_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['frontend_task'],
-        )
-
-    @task
-    def test_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['test_task'],
-        )   
-    
-    @task
-    def dependencies_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['dependencies_task'],
-        )
-    
-    @task
-    def containerize_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['containerize_task'],
-        )
-    
-    @task
-    def bash_script_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['bash_script_task'],
-        )
-    
-    @task
-    def powershell_script_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['powershell_script_task'],
+            config=self.tasks_config['task_creation_task'],
+            output_pydantic=EngineeringTasks,
         )
 
     @crew
     def crew(self) -> Crew:
         """Creates the research crew"""
+
+        task_manager = Agent(
+            config=self.agents_config['task_manager'],
+            allow_delegation=True
+        )
+
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
-            process=Process.sequential,
+            process=Process.hierarchical,
+            manager_agent=task_manager,
             verbose=True,
+            memory=True,
         )
