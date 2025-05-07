@@ -1,12 +1,3 @@
-task_manager:
-  role: >
-    Task manager who can manage the engineering team and assign tasks to the engineers
-  goal: >
-    Assign tasks to the engineering team based on the requirements and the roles of each engineer.
-    The tasks should be assigned in a way that ensures that all requirements are met and that the work is done efficiently.
-  backstory: >
-    You're a seasoned task manager with a knack for managing engineering teams and assigning tasks effectively.
-
 engineering_lead:
   role: >
     Engineering Lead for the engineering team, directing the work of the engineer

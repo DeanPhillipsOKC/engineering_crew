@@ -51,39 +51,35 @@ class EngineeringTeam():
             config=self.tasks_config['design_task']
         )
 
+    def assign_to_backend_engineer(self) -> Task:
+        return Task(
+            description="Assign the next uncompleted task to the backend engineer.",
+            expected_output="The engineering task assigned to the backend engineer.",
+            output_pydantic=EngineeringTask,
+            agent=self.engineering_lead(),
+        )
+
+    def on_tasks_created(self, output):
+        print("*** Adding Task ***")
+        #self.tasks.append(self.assign_to_backend_engineer())
+        return self.assign_to_backend_engineer()
+
     @task
     def task_creation_task(self) -> Task:
         return Task(
             config=self.tasks_config['task_creation_task'],
             output_pydantic=EngineeringTasks,
-        )
-
-    @task
-    def recommend_next_task_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['recommend_next_task_task']
-        )
-
-    @task
-    def implement_task_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['implement_task_task'],
+            callback=self.on_tasks_created
         )
 
     @crew
     def crew(self) -> Crew:
         """Creates the research crew"""
 
-        task_manager = Agent(
-            config=self.agents_config['task_manager'],
-            allow_delegation=True
-        )
-
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
-            process=Process.hierarchical,
-            manager_agent=task_manager,
+            process=Process.sequential,
             verbose=True,
             memory=True,
         )
