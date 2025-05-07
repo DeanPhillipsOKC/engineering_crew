@@ -1,5 +1,6 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai_tools import FileReadTool, FileWriterTool
 from .tools.tasks import AddTaskTool, ListTasksTool
 from pydantic import BaseModel
 
@@ -37,7 +38,11 @@ class EngineeringTeam():
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
             max_execution_time=120, 
-            max_retry_limit=3 
+            max_retry_limit=3,
+            tools=[
+                FileReadTool(),
+                FileWriterTool(),
+            ]
         )
 
     @task
@@ -51,6 +56,18 @@ class EngineeringTeam():
         return Task(
             config=self.tasks_config['task_creation_task'],
             output_pydantic=EngineeringTasks,
+        )
+
+    @task
+    def recommend_next_task_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['recommend_next_task_task']
+        )
+
+    @task
+    def implement_task_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['implement_task_task'],
         )
 
     @crew
