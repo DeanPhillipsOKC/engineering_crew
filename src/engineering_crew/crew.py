@@ -1,16 +1,28 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import FileReadTool, FileWriterTool
-from .tools.tasks import AddTaskTool, ListTasksTool
 from pydantic import BaseModel
 
-class EngineeringTask(BaseModel):
-    id: str
+class DesignField(BaseModel):
+    name: str
     description: str
-    completed: bool = False
+    requirements: str
 
-class EngineeringTasks(BaseModel):
-    tasks: list[EngineeringTask]
+class DesignMethod(BaseModel):
+    name: str
+    description: str
+    prototype: str
+    requirements: str
+
+class DesignModule(BaseModel):
+    name: str
+    description: str
+    requirements: str
+    methods: list[DesignMethod]
+    fields: list[DesignField]
+
+class Design(BaseModel):
+    modules: list[DesignModule]
 
 @CrewBase
 class EngineeringTeam():
@@ -23,11 +35,7 @@ class EngineeringTeam():
     def engineering_lead(self) -> Agent:
         return Agent(
             config=self.agents_config['engineering_lead'],
-            verbose=True,
-            tools=[
-                AddTaskTool(),
-                ListTasksTool(),
-            ],
+            verbose=True
         )
 
     @agent
@@ -45,33 +53,27 @@ class EngineeringTeam():
             ]
         )
 
-    @task
-    def design_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['design_task']
-        )
-
-    def assign_to_backend_engineer(self) -> Task:
+    def assign_to_backend_engineer(self, design: Design) -> Task:
         task = Task(
-            description="Assign the next uncompleted task to the backend engineer.",
-            expected_output="The engineering task assigned to the backend engineer.",
-            output_pydantic=EngineeringTask,
-            agent=self.engineering_lead(),
+            description="Implement the modules, methods, and fields.  Write them to the output/src folder",
+            expected_output="The module source code written to the output/src folder.",
+            agent=self.backend_engineer(),
+            scope=design.modules[0]
         )
         print("*** Appended ***")
         result = task.execute_sync()
 
-    def on_tasks_created(self, output):
+    def on_design_created(self, result):
         print("*** Adding Task ***")
         #self.tasks.append(self.assign_to_backend_engineer())
-        return self.assign_to_backend_engineer()
+        return self.assign_to_backend_engineer(result.pydantic)
 
     @task
-    def task_creation_task(self) -> Task:
+    def design_task(self) -> Task:
         return Task(
-            config=self.tasks_config['task_creation_task'],
-            output_pydantic=EngineeringTasks,
-            callback=self.on_tasks_created
+            config=self.tasks_config['design_task'],
+            callback=self.on_design_created,
+            output_pydantic=Design,
         )
 
     @crew
