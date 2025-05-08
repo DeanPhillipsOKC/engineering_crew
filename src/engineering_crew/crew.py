@@ -1,32 +1,16 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import FileReadTool, FileWriterTool
-from .tools.tasks import AddTaskTool, ListTasksTool, CompleteTaskTool, GetNextActiveTaskTool
+from .tools.tasks import AddTaskTool, ListTasksTool
 from pydantic import BaseModel
 
-class DesignMethod(BaseModel):
-    name: str
+class EngineeringTask(BaseModel):
+    id: str
     description: str
-    prototype: str
+    completed: bool = False
 
-class DesignField(BaseModel):
-    name: str
-    type: str
-    description: str
-
-class DesignClass(BaseModel):
-    name: str
-    description: str
-    methods: list[DesignMethod]
-    fields: list[DesignField]
-
-class DesignModule(BaseModel):
-    name: str
-    description: str
-    classes: list[DesignClass]
-
-class DesignModules(BaseModel):
-    modules: list[DesignModule]
+class EngineeringTasks(BaseModel):
+    tasks: list[EngineeringTask]
 
 @CrewBase
 class EngineeringTeam():
@@ -36,39 +20,62 @@ class EngineeringTeam():
     tasks_config = 'config/tasks.yaml'
 
     @agent
-    def software_architect(self) -> Agent:
+    def engineering_lead(self) -> Agent:
         return Agent(
-            config=self.agents_config['software_architect'],
+            config=self.agents_config['engineering_lead'],
+            verbose=True,
+            tools=[
+                AddTaskTool(),
+                ListTasksTool(),
+            ],
         )
 
     @agent
-    def backend_developer(self) -> Agent:
+    def backend_engineer(self) -> Agent:
         return Agent(
-            config=self.agents_config['backend_developer'],
+            config=self.agents_config['backend_engineer'],
+            verbose=True,
+            allow_code_execution=True,
+            code_execution_mode="safe",  # Uses Docker for safety
+            max_execution_time=120, 
+            max_retry_limit=3,
             tools=[
                 FileReadTool(),
-                FileWriterTool()
-            ],
-            allow_code_execution=True,
-            code_execution_mode="safe"
+                FileWriterTool(),
+            ]
         )
 
     @task
     def design_task(self) -> Task:
         return Task(
-            config=self.tasks_config['design_task'],
-            pydantic_model=DesignModules,
+            config=self.tasks_config['design_task']
         )
-    
-    @task
-    def implement_backend_code_task(self) -> Task:
+
+    def assign_to_backend_engineer(self) -> Task:
         return Task(
-            config=self.tasks_config['implement_backend_code_task']
+            description="Assign the next uncompleted task to the backend engineer.",
+            expected_output="The engineering task assigned to the backend engineer.",
+            output_pydantic=EngineeringTask,
+            agent=self.engineering_lead(),
+        )
+
+    def on_tasks_created(self, output):
+        print("*** Adding Task ***")
+        #self.tasks.append(self.assign_to_backend_engineer())
+        return self.assign_to_backend_engineer()
+
+    @task
+    def task_creation_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['task_creation_task'],
+            output_pydantic=EngineeringTasks,
+            callback=self.on_tasks_created
         )
 
     @crew
     def crew(self) -> Crew:
         """Creates the research crew"""
+
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
