@@ -1,28 +1,11 @@
 from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai_tools import FileReadTool, FileWriterTool
+from crewai.project import CrewBase, agent, crew, task, before_kickoff
+from crewai_tools import FileReadTool, FileWriterTool, CodeInterpreterTool
 from pydantic import BaseModel
-
-class DesignField(BaseModel):
-    name: str
-    description: str
-    requirements: str
-
-class DesignMethod(BaseModel):
-    name: str
-    description: str
-    prototype: str
-    requirements: str
-
-class DesignModule(BaseModel):
-    name: str
-    description: str
-    requirements: str
-    methods: list[DesignMethod]
-    fields: list[DesignField]
-
-class Design(BaseModel):
-    modules: list[DesignModule]
+from .models.design import Design, DesignModule
+from .services.tasks import TaskManager
+import os
+import shutil
 
 @CrewBase
 class EngineeringTeam():
@@ -30,6 +13,14 @@ class EngineeringTeam():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
+
+    task_manager = None
+
+    @before_kickoff
+    def reset_output(self, _):
+        shutil.rmtree("output", ignore_errors=True)
+        os.makedirs("output/src", exist_ok=True)
+
 
     @agent
     def engineering_lead(self) -> Agent:
@@ -45,28 +36,51 @@ class EngineeringTeam():
             verbose=True,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
-            max_execution_time=120, 
-            max_retry_limit=3,
             tools=[
                 FileReadTool(),
                 FileWriterTool(),
+                CodeInterpreterTool(result_as_answer=True)
             ]
         )
 
-    def assign_to_backend_engineer(self, design: Design) -> Task:
+    def on_module_implemented(self, result):
+        next_task = self.task_manager.pop_module()
+
+        if next_task:
+            self.create_implement_module_task(next_task)
+
+    def create_implement_module_task(self, module: DesignModule) -> Task:
+        # convert the module pydantic object to a string
+        module_str = module.model_dump_json(indent=2)
+
+        design = self.task_manager.get_design()
         task = Task(
-            description="Implement the modules, methods, and fields.  Write them to the output/src folder",
-            expected_output="The module source code written to the output/src folder.",
+            description=f"Implement the module, methods, and fields.  Write them to the output/src folder \
+                never finish the task without executing the code first.  If you get errors due to missing \
+                modules, create a stub for the module and write it to the output/src folder. \
+                \
+                MODULE TO IMPLEMENT: {module_str} \
+                \
+                REQUIREMENTS: {design.requirements} \
+                \
+                ARCHITECTURE STANDARDS: {design.architecture_standards} \
+                \
+                FOLDER STRUCTURE: {design.folder_structure} \
+                \
+                BEST PRACTICES: {design.best_practices}",
+            expected_output="A python module that implements the design and achieves the requirements. \
+                            IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code \
+                            block delimiters, or backticks. The output should be valid Python code that can \
+                            be directly saved to a file and executed.",
             agent=self.backend_engineer(),
-            scope=design.modules[0]
+            callback=self.on_module_implemented,
+            output_file=f"output/src/{module.file_path}",
         )
-        print("*** Appended ***")
         result = task.execute_sync()
 
     def on_design_created(self, result):
-        print("*** Adding Task ***")
-        #self.tasks.append(self.assign_to_backend_engineer())
-        return self.assign_to_backend_engineer(result.pydantic)
+        self.task_manager = TaskManager(result.pydantic)
+        self.create_implement_module_task(self.task_manager.pop_module())
 
     @task
     def design_task(self) -> Task:
