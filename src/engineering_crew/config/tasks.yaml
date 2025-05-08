@@ -6,18 +6,21 @@ design_task:
 
     Architecture Standards: {architecture_standards}
 
-    IMPORTANT: Only output the design in markdown format, laying out the detail for any required
-    modules, classes, functions, and methods.
+    IMPORTANT: Use multiple modules arranged in a directory structure that organizes the code according
+    to best practices.  The directory structure should be included in the design.
+
   expected_output: >
     A detailed design for the backend developer listing out every module, class, function, and method
-  agent: engineering_lead
-  output_file: output/design.md
+  agent: software_architect
 
-task_creation_task:
+implement_backend_code_task:
   description: >
-    Using the task creation tool, create a list of  tasks for the engineering team based on the design provided by the engineering lead.
-    There should be a single task for each module that contains the classes, functions, and methods described in the design.
+    Implement all modules required for the design provided by the software architect.
+    You should use the file read and file writer tools to explore the source directlyr and make modifications
+    to it.  All files should be read from and written to the {src_base_directory} directory.
   expected_output: >
-    A list of tasks assigned to each engineer, including the task description, the engineer assigned to it, and the deadline for completion.
-    Use the list all tasks tool to create this output.
-  agent: engineering_lead
+    All tasks have been marked as complete and all source code has been written to the {src_base_directory} directory.
+  agent: backend_developer
+  context:
+    - design_task
+

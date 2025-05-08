@@ -61,6 +61,26 @@ class ListTasksTool(BaseTool):
     async def _arun(self) -> str:
         return self._run()
 
+class GetNextActiveTaskInput(BaseModel):
+    """Schema for listing tasks. No arguments currently needed."""
+    pass
+
+class GetNextActiveTaskTool(BaseTool):
+    name: str = "get_next_active_task"
+    description: str = (
+        "Get the next active task in the tracker."
+    )
+    args_schema: Type[BaseModel] = GetNextActiveTaskInput
+
+    def _run(self) -> Optional[EngineeringTask]:
+        for task in _tasks:
+            if not task.completed:
+                return task
+        return None
+
+    async def _arun(self) -> str:
+        return self._run()
+
 class CompleteTaskInput(BaseModel):
     """Schema for completing a task."""
     task_id: int = Field(

@@ -28,6 +28,8 @@ architecture_standards = """
 The system should be designed using object-oriented principles, with clear separation of concerns.
 """
 
+src_base_directory = "output/src"
+
 def run():
     """
     Run the research crew.
@@ -35,6 +37,7 @@ def run():
     inputs = {
         'requirements': requirements,
         'architecture_standards': architecture_standards,
+        'src_base_directory': src_base_directory,
     }
 
     # Create and run the crew
