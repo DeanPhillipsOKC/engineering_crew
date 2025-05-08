@@ -52,12 +52,14 @@ class EngineeringTeam():
         )
 
     def assign_to_backend_engineer(self) -> Task:
-        return Task(
+        task = Task(
             description="Assign the next uncompleted task to the backend engineer.",
             expected_output="The engineering task assigned to the backend engineer.",
             output_pydantic=EngineeringTask,
             agent=self.engineering_lead(),
         )
+        print("*** Appended ***")
+        result = task.execute_sync()
 
     def on_tasks_created(self, output):
         print("*** Adding Task ***")

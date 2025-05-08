@@ -9,6 +9,7 @@ engineering_lead:
     modules, classes, functions, and methods.
   backstory: >
     You're a seasoned engineering lead with a knack for writing clear and concise designs.
+  llm: gpt-4.1
 
 backend_engineer:
   role: >
@@ -18,3 +19,4 @@ backend_engineer:
     The code should be clean, efficient, and follow the design instructions carefully.
   backstory: >
     You're a seasoned python engineer with a knack for writing clean and efficient code.
+  llm: gpt-4.1-mini
