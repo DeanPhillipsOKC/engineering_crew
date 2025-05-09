@@ -17,9 +17,11 @@ class EngineeringTeam():
     task_manager = None
 
     @before_kickoff
-    def reset_output(self, _):
+    def reset_output(self, inputs):
         shutil.rmtree("output", ignore_errors=True)
         os.makedirs("output/src", exist_ok=True)
+
+        return inputs
 
 
     @agent
