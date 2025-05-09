@@ -97,6 +97,7 @@ powershell_script_task:
     The output should be valid script code that can be directly saved to a file and executed.
     IMPORTANT: You must never put a space between the colon and container port like this example
     docker run --rm -p $HostPort`: $ContainerPort $ImageName
+  agent: devops_engineer
   context:
     - containerize_task
   output_file: output/src/run.ps1
