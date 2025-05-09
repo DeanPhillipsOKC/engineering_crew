@@ -20,7 +20,7 @@ code_task:
   agent: backend_engineer
   context:
     - design_task
-  output_file: output/src/{module_name}
+  output_file: output/src/{module_name}.py
 
 frontend_task:
   description: >
@@ -104,9 +104,13 @@ powershell_script_task:
 
 make_refactoring_recommendation_task:
   description: >
-    Analyses the source code in the module {module_name} and suggests a single way to refactor it.
+    Analyses the source code in the module {module_name} and suggests a single way to refactor it.  The
+    refactoring advice should be very specific and prescriptive.  For example, instead of saying
+    "extract common logic into separate modules", say "extract the in memory database code into a 
+    separate repository module.  The implementation should be an AccountInMemoryRepository class while
+    it uses a general interface like AccountRepository for abstraction".
   expected_output: >
-    A single recommendation for refactoring the code in the module {module_name}.
+    A single, specific, and presripptive recommendation for refactoring the code in the module {module_name}.
     The recommendations should be based on clean architecture principles, SOLID principles, and object oriented design principles, and python best practices.
     If the code is already well-structured and does not require further refactoring, indicate that as well.
   agent: refactoring_engineer
@@ -123,5 +127,4 @@ implement_refactoring_recommendation_task:
     The output should be valid Python code that can be directly saved to a file and executed.
   agent: backend_engineer
   context:
-    - code_task
     - make_refactoring_recommendation_task

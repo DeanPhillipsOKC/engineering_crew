@@ -16,6 +16,7 @@ class EngineeringTeam():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
+    agents_verbose = False
 
     @before_kickoff
     def purge_output_folders(self, inputs):
@@ -23,36 +24,39 @@ class EngineeringTeam():
         shutil.rmtree('output', ignore_errors=True)
         os.makedirs('output', exist_ok=True)
 
+        return inputs
+
     @agent
     def engineering_lead(self) -> Agent:
         return Agent(
             config=self.agents_config['engineering_lead'],
-            verbose=True,
+            verbose=self.agents_verbose,
         )
 
     @agent
     def backend_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['backend_engineer'],
-            verbose=True,
+            verbose=self.agents_verbose,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
             max_execution_time=120, 
-            max_retry_limit=3 
+            max_retry_limit=3,
+            tools=[FileWriterTool(), FileReadTool()],
         )
     
     @agent
     def frontend_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['frontend_engineer'],
-            verbose=True,
+            verbose=self.agents_verbose,
         )
     
     @agent
     def test_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['test_engineer'],
-            verbose=True,
+            verbose=self.agents_verbose,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
             max_execution_time=120, 
@@ -63,7 +67,7 @@ class EngineeringTeam():
     def devops_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['devops_engineer'],
-            verbose=True,
+            verbose=self.agents_verbose,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
             max_execution_time=120, 
@@ -74,7 +78,7 @@ class EngineeringTeam():
     def refactoring_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['refactoring_engineer'],
-            verbose=True,
+            verbose=self.agents_verbose,
             tools=[FileReadTool()]
         )
 
