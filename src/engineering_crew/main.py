@@ -4,7 +4,8 @@ import warnings
 import os
 from datetime import datetime
 
-from engineering_crew.crew import EngineeringTeam
+from engineering_crew.planning_crew import PlanningTeam
+from engineering_crew.development_crew import DevelopmentTeam
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -23,8 +24,7 @@ The system should prevent the user from withdrawing funds that would leave them 
  from buying more shares than they can afford, or selling shares that they don't have.
  The system has access to a function get_share_price(symbol) which returns the current price of a share, and includes a test implementation that returns fixed prices for AAPL, TSLA, GOOGL.
 """
-module_name = "accounts.py"
-class_name = "Account"
+module_name = "backend"
 
 
 def run():
@@ -34,12 +34,21 @@ def run():
     inputs = {
         'requirements': requirements,
         'module_name': module_name,
-        'class_name': class_name
     }
 
     # Create and run the crew
-    result = EngineeringTeam().crew().kickoff(inputs=inputs)
+    result = PlanningTeam().crew().kickoff(inputs=inputs)
 
+    backlog = result.pydantic
+    design = result.tasks_output[0].pydantic.design
+
+    for backlog_item in backlog.items:
+        inputs['task_title'] = backlog_item.title
+        inputs['task_module_name'] = backlog_item.module_name_no_extension
+        inputs['task_description'] = backlog_item.description
+        inputs['design'] = design
+
+        result = DevelopmentTeam().crew().kickoff(inputs=inputs)
 
 if __name__ == "__main__":
     run()

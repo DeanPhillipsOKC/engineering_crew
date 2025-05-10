@@ -1,0 +1,30 @@
+code_task:
+  description: >
+    Write and execute a python module that implements the design described by the 
+    engineering lead.  The file should be written to 
+    output/src/{task_module_name}.py.
+
+    DESIGN: {task_title}
+    {task_description}
+  expected_output: >
+    A pydantic model that provides information about whether the code file was
+    created and executed successfully and whether or not it was blocked by
+    a missing module.
+  agent: backend_engineer
+
+test_task:
+  description: >
+    Write unit tests for the given backend module {task_module_name} and create a 
+    test_{task_module_name} in the same directory as the backend module.
+
+    if the output/src/{task_module_name}.py file is missing, then do not do
+    anything except report that the file was missing
+  expected_output: >
+    A test_{task_module_name} module that tests the given backend module.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 
+    code block delimiters, or backticks. The output should be valid Python code 
+    that can be directly saved to a file and executed.
+  agent: test_engineer
+  context:
+    - code_task
+

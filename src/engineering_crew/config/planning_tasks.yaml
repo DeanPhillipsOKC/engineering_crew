@@ -1,0 +1,25 @@
+design_task:
+  description: >
+    Take the high level requirements described here and prepare a detailed design for the backend engineer.
+    The solution can, and should have multiple modules in multiple files using best practices, but the
+    single entry point to all backend functionality should be in 1 python module named {module_name}.py.
+
+    REQUIREMENTS:
+    {requirements}
+  expected_output: >
+    A detailed design for the engineer, identifying the modules, classes, functions, and dependencies
+    in the solution.
+  agent: engineering_lead
+
+planning_task:
+  description: >
+    Take the design and prepare a task backlog for the engineering team.
+  expected_output: >
+    A task backlog for all modules that includes all of the information needed to implement the design.
+    IMPORTANT: Order the tasks in a way that makes sure that a developer does not require a module that
+    has not yet been implemented in order to implement their module.  For example, they should start with
+    the modules with no depenencies (other than third party libraries) and end with the backend entry
+    point module {module_name}.py.
+  context:
+    - design_task
+  agent: engineering_planner
