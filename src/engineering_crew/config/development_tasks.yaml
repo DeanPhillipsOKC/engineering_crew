@@ -19,6 +19,9 @@ test_task:
 
     if the output/src/{task_module_name}.py file is missing, then do not do
     anything except report that the file was missing
+
+    If the test fails you should use your tools to determine why it failed and
+    update the test or the code as appropriate to make it pass.
   expected_output: >
     A test_{task_module_name} module that tests the given backend module.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 
