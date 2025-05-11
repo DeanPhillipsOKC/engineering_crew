@@ -5,21 +5,21 @@ from .models.design import Design
 from .models.backlog import Backlog
 from .models.backend_update import BackendImplementationUpdate
 from .models.test_update import TestImplementationUpdate
+from .tools.update_requirements_file import UpdateRequirementsFileTool
 import os
 import shutil
 
 @CrewBase
-class DevelopmentTeam():
-    """DevelopmentTeam crew"""
+class BackendTeam():
+    """BackendTeam crew"""
 
-    agents_config = 'config/development_agents.yaml'
-    tasks_config = 'config/development_tasks.yaml'
+    agents_config = 'config/backend_agents.yaml'
+    tasks_config = 'config/backend_tasks.yaml'
 
     @agent
     def backend_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['backend_engineer'],
-            verbose=True,
             allow_code_execution=True,
             code_execution_mode='safe',
             tools=[
@@ -32,7 +32,6 @@ class DevelopmentTeam():
     def test_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['test_engineer'],
-            verbose=True,
             allow_code_execution=True,
             code_execution_mode='safe',
             tools=[
@@ -41,18 +40,25 @@ class DevelopmentTeam():
             ]
         )
 
+    def update_requirements_file(self, inputs):
+        tool = UpdateRequirementsFileTool(directory="output/src", force=True)
+        output = tool._run()
+        print(output)
+
     @task
     def code_task(self) -> Task:
         return Task(
             config=self.tasks_config['code_task'],
             output_pydantic=BackendImplementationUpdate,
+            callback=self.update_requirements_file,
         )
-    
+
     @task
     def test_task(self) -> Task:
         return Task(
             config=self.tasks_config['test_task'],
             output_pydantic=TestImplementationUpdate,
+            callback=self.update_requirements_file,
         )
 
     @crew

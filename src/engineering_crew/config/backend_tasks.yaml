@@ -22,6 +22,8 @@ test_task:
 
     If the test fails you should use your tools to determine why it failed and
     update the test or the code as appropriate to make it pass.
+
+    You should treat warnings as errors and fix them as well.
   expected_output: >
     A test_{task_module_name} module that tests the given backend module.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 
@@ -30,4 +32,3 @@ test_task:
   agent: test_engineer
   context:
     - code_task
-

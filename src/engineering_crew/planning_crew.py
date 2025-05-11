@@ -24,14 +24,12 @@ class PlanningTeam():
     def engineering_lead(self) -> Agent:
         return Agent(
             config=self.agents_config['engineering_lead'],
-            verbose=True,
         )
 
     @agent
     def engineering_planner(self) -> Agent:
         return Agent(
             config=self.agents_config['engineering_lead'],
-            verbose=True,
         )
 
     @task

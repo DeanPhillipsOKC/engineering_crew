@@ -10,6 +10,7 @@ design_task:
     A detailed design for the engineer, identifying the modules, classes, functions, and dependencies
     in the solution.
   agent: engineering_lead
+  output_file: output/design.json
 
 planning_task:
   description: >
@@ -23,3 +24,4 @@ planning_task:
   context:
     - design_task
   agent: engineering_planner
+  output_file: output/backlog.txt

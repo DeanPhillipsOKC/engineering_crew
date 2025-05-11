@@ -5,7 +5,8 @@ import os
 from datetime import datetime
 
 from engineering_crew.planning_crew import PlanningTeam
-from engineering_crew.development_crew import DevelopmentTeam
+from engineering_crew.backend_crew import BackendTeam
+from engineering_crew.frontend_crew import FrontendTeam
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -42,13 +43,30 @@ def run():
     backlog = result.pydantic
     design = result.tasks_output[0].pydantic.design
 
+    retries = []
     for backlog_item in backlog.items:
         inputs['task_title'] = backlog_item.title
         inputs['task_module_name'] = backlog_item.module_name_no_extension
         inputs['task_description'] = backlog_item.description
         inputs['design'] = design
 
-        result = DevelopmentTeam().crew().kickoff(inputs=inputs)
+        result = BackendTeam().crew().kickoff(inputs=inputs)
+
+        task1_successful = result.tasks_output[0].pydantic.successfuly_executed
+        task2_successful = result.tasks_output[1].pydantic.successfuly_executed
+
+        if not task1_successful or not task2_successful:
+            retries.append(backlog_item)
+
+    for backlog_item in retries:
+        inputs['task_title'] = backlog_item.title
+        inputs['task_module_name'] = backlog_item.module_name_no_extension
+        inputs['task_description'] = backlog_item.description
+        inputs['design'] = design
+
+        result = BackendTeam().crew().kickoff(inputs=inputs)
+
+    result = FrontendTeam().crew().kickoff(inputs=inputs)
 
 if __name__ == "__main__":
     run()
