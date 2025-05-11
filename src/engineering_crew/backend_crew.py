@@ -1,6 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task, before_kickoff
 from crewai_tools import FileReadTool, FileWriterTool
+from .memory import long_term_memory, short_term_memory, entity_memory
 from .models.design import Design
 from .models.backlog import Backlog
 from .models.backend_update import BackendImplementationUpdate
@@ -69,4 +70,8 @@ class BackendTeam():
             tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
+            memory=True,
+            long_term_memory=long_term_memory,
+            short_term_memory=short_term_memory,
+            entity_memory=entity_memory,
         )

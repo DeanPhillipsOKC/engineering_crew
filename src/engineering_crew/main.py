@@ -37,6 +37,7 @@ def run():
         'module_name': module_name,
     }
 
+    """
     # Create and run the crew
     result = PlanningTeam().crew().kickoff(inputs=inputs)
 
@@ -52,10 +53,9 @@ def run():
 
         result = BackendTeam().crew().kickoff(inputs=inputs)
 
-        task1_successful = result.tasks_output[0].pydantic.successfuly_executed
-        task2_successful = result.tasks_output[1].pydantic.successfuly_executed
+        task_successful = result.tasks_output[0].pydantic.successfuly_executed
 
-        if not task1_successful or not task2_successful:
+        if not task_successful:
             retries.append(backlog_item)
 
     for backlog_item in retries:
@@ -64,9 +64,13 @@ def run():
         inputs['task_description'] = backlog_item.description
         inputs['design'] = design
 
-        result = BackendTeam().crew().kickoff(inputs=inputs)
+        result = BackendTeam().crew().kickoff(inputs=inputs) 
+    """
 
     result = FrontendTeam().crew().kickoff(inputs=inputs)
+
+    # print number of times backend crew needed to retry
+    # print(f"Backend crew needed to retry {len(retries)} times.")
 
 if __name__ == "__main__":
     run()

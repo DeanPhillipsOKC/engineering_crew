@@ -1,6 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import FileReadTool, FileWriterTool
+from .memory import long_term_memory, short_term_memory, entity_memory
 from .models.backend_update import BackendImplementationUpdate
 from .tools.update_requirements_file import UpdateRequirementsFileTool
 
@@ -23,6 +24,39 @@ class FrontendTeam():
             ]
         )
 
+    @agent
+    def devops_engineer(self) -> Agent:
+        return Agent(
+            config=self.agents_config['devops_engineer'],
+            allow_code_execution=True,
+            code_execution_mode='safe',
+            tools=[
+                FileReadTool(),
+                FileWriterTool(),
+            ]
+        )
+    
+    @agent
+    def scripter(self) -> Agent:
+        return Agent(
+            config=self.agents_config['scripter'],
+            allow_code_execution=True,
+            code_execution_mode='safe',
+            tools=[
+                FileReadTool(),
+                FileWriterTool(),
+            ]
+        )
+    
+    @agent
+    def ux_expert(self) -> Agent:
+        return Agent(
+            config=self.agents_config['ux_expert'],
+            tools=[
+                FileReadTool(),
+            ]
+        )
+
     def update_requirements_file(self, inputs):
         tool = UpdateRequirementsFileTool(directory="output/src", force=True)
         output = tool._run()
@@ -32,7 +66,49 @@ class FrontendTeam():
     def frontend_task(self) -> Task:
         return Task(
             config=self.tasks_config['frontend_task'],
-            output_pydantic=BackendImplementationUpdate,
+            callback=self.update_requirements_file,
+        )
+    
+    @task
+    def create_dockerfile_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['create_dockerfile_task'],
+        )
+
+    @task
+    def create_bash_run_script_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['create_bash_run_script_task'],
+        )
+
+    @task
+    def create_powershsell_run_script_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['create_powershsell_run_script_task'],
+        )
+    
+    @task
+    def create_bash_run_test_script_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['create_bash_run_test_script_task'],
+        )
+    
+    @task
+    def create_powershell_run_test_script_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['create_powershell_run_test_script_task'],
+        )
+
+    @task
+    def review_ux_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['review_ux_task'],
+        )
+    
+    @task
+    def implement_ux_suggestions_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['implement_ux_suggestions_task'],
         )
 
     @crew
@@ -43,4 +119,8 @@ class FrontendTeam():
             tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
+            memory=True,
+            long_term_memory=long_term_memory,
+            short_term_memory=short_term_memory,
+            entity_memory=entity_memory,
         )

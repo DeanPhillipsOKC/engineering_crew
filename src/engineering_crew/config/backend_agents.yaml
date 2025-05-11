@@ -15,6 +15,7 @@ test_engineer:
     backend module {task_module_name}
   goal: >
     Write unit tests for the given backend module {task_module_name} and create a 
-    test_{task_module_name} in the same directory as the backend module.
+    test_{task_module_name} in the same directory as the backend module.  Never
+    quit until all tests pass.
   backstory: >
     You're a seasoned QA engineer and software developer who writes great unit tests for python code.
