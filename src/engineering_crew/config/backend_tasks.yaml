@@ -25,7 +25,7 @@ test_task:
 
     You should treat warnings as errors and fix them as well.
 
-    Never quite until all tests pass.
+    Never quit until all tests pass.
   expected_output: >
     A test_{task_module_name} module that tests the given backend module.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 

@@ -3,11 +3,16 @@ frontend_task:
     Write a streamlit UI in a module app.py that demonstrates the given backend 
     class in {module_name} which can be found in output/src/{module_name}.py.
     Assume there is only 1 user, and keep the UI very simple indeed - just a prototype or demo.
-    Here are the requirements: {requirements}
+    
+    Here are the requirements: 
+    {requirements}
 
-    IMPORTANT: Only use the backend entry point module 
-    output/src/{module_name}.py and the streamlit library. It is the entry point so there should
-    be no need to examine the other modules.
+    IMPORTANT: 
+    - Only use the backend entry point module 
+      output/src/{module_name}.py and the streamlit library. It is the entry point so there should
+      be no need to examine the other modules.
+
+    - Always use a key for UI elements so that they are easier to test and debug.
   expected_output: >
     A streamlit UI in module app.py that demonstrates the given backend class.
     The file should be ready so that it can be run as-is, in the same directory
@@ -60,8 +65,13 @@ create_powershsell_run_script_task:
     executable.
 
     IMPORTANT:
-    - Never forget to use the curly braces for HostPort and ContainerPort.  This 
-    is a common mistake.
+    - Use this as a proper example for running the container.  Powershell scripts
+    are very picky and we run into a lot of issues with this part.
+
+    docker run --name $ContainerName `
+    -p "$($HostPort):$($ContainerPort)" `
+    --rm `
+    $ImageName
 
   expected_output: >
     A PowerShell script that runs the streamlit UI in a container. The shell 
@@ -123,3 +133,47 @@ implement_ux_suggestions_task:
   output_file: output/src/app.py
   context:
     - review_ux_task
+
+identify_use_cases_task:
+  description: >
+    Write a document containing use-cases for the streamlit UI in output/src/app.py.
+
+    Here are the requirements: 
+    {requirements}
+  expected_output: >
+    A document containing use-cases for the streamlit UI.  They should be clear
+    enough to base end to end test scenarios on to ensure that the streamlit UI
+    is working as expected and meets the needs of the users.
+  agent: business_analyst
+  output_file: output/use_cases.txt
+
+test_streamlit_ui_task:
+  description: >
+    Write tests using Streamlit's native testing framework AppTest to test all 
+    of the UI use cases for the streamlit UI in output/src/app.py.
+
+    When finished, tests for all use cases should be passing.  If you find issues
+    in the code, you should fix them.
+
+    You should treat warnings as errors and fix them as well.
+
+    Never quit until all tests pass.
+
+    IMPORTANT:
+    - AppTest.from_file does not have a keyword argument called initial_state.
+      The correct way to set the initial state is to use the session_state object.
+
+    - Do not monkey patch or mock the backend module.  It should be imported as-is.
+
+    - Always reference a UI element by its key, not by its index.  If it does not
+      have a key, then add one.
+
+  expected_output: >
+    An output/src/test_app.py module that tests the given streamlit UI module.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 
+    code block delimiters, or backticks. The output should be valid Python code 
+    that can be directly saved to a file and executed
+  agent: streamlit_tester
+  context:
+    - identify_use_cases_task
+  output_file: output/src/test_app.py

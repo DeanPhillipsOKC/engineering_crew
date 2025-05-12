@@ -56,6 +56,27 @@ class FrontendTeam():
                 FileReadTool(),
             ]
         )
+    
+    @agent
+    def business_analyst(self) -> Agent:
+        return Agent(
+            config=self.agents_config['business_analyst'],
+            tools=[
+                FileReadTool(),
+            ]
+        )
+
+    @agent
+    def streamlit_tester(self) -> Agent:
+        return Agent(
+            config=self.agents_config['streamlit_tester'],
+            allow_code_execution=True,
+            code_execution_mode='safe',
+            tools=[
+                FileReadTool(),
+                FileWriterTool(),
+            ]
+        )
 
     def update_requirements_file(self, inputs):
         tool = UpdateRequirementsFileTool(directory="output/src", force=True)
@@ -111,6 +132,19 @@ class FrontendTeam():
             config=self.tasks_config['implement_ux_suggestions_task'],
         )
 
+    @task
+    def identify_use_cases_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['identify_use_cases_task'],
+        )
+
+    @task
+    def test_streamlit_ui_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['test_streamlit_ui_task'],
+            callback=self.update_requirements_file,
+        )
+    
     @crew
     def crew(self) -> Crew:
         """Creates the research crew"""
