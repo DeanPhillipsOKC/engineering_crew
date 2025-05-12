@@ -1,6 +1,7 @@
 from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-
+from crewai.project import CrewBase, agent, crew, task, before_kickoff
+import shutil
+import os
 
 
 @CrewBase
@@ -9,6 +10,14 @@ class EngineeringTeam():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
+
+    @before_kickoff
+    def purge_output_dir(self, inputs):
+        # Delete the output directory if it exists
+        shutil.rmtree('output', ignore_errors=True)
+        os.makedirs('output/src', exist_ok=True)
+
+        return inputs
 
     @agent
     def engineering_lead(self) -> Agent:
@@ -80,12 +89,6 @@ class EngineeringTeam():
         return Task(
             config=self.tasks_config['test_task'],
         )   
-    
-    @task
-    def dependencies_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['dependencies_task'],
-        )
     
     @task
     def containerize_task(self) -> Task:

@@ -2,7 +2,11 @@ design_task:
   description: >
     Take the high level requirements described here and prepare a detailed design for the engineer;
     everything should be in 1 python module, but outline the classes and methods in the module.
-    Here are the requirements: {requirements}
+    
+    Here are the requirements: 
+    {requirements}
+
+    The module should be named {module_name} and the class should be named {class_name}
     IMPORTANT: Only output the design in markdown format, laying out in detail the classes and functions in the module, describing the functionality.
   expected_output: >
     A detailed design for the engineer, identifying the classes and functions in the module.
@@ -12,7 +16,13 @@ design_task:
 code_task:
   description: >
     Write a python module that implements the design described by the engineering lead, in order to achieve the requirements.
-    Here are the requirements: {requirements}
+    
+    The python module must be completely self-contained, and ready so that it can 
+    be tested or have a simple UI built for it. The module should be named 
+    {module_name}.py and the class should be named {class_name}
+
+    Here are the requirements: 
+    {requirements}
   expected_output: >
     A python module that implements the design and achieves the requirements.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
@@ -20,21 +30,21 @@ code_task:
   agent: backend_engineer
   context:
     - design_task
-  output_file: output/src/{module_name}
+  output_file: output/src/{module_name}.py
 
 frontend_task:
   description: >
     Write a Streamlit UI in a module app.py that demonstrates the given backend class in {module_name}.
     Assume there is only 1 user, and keep the UI very simple indeed - just a prototype or demo.
-    Here are the requirements: {requirements}
+    
+    Here are the requirements: 
+    {requirements}
   expected_output: >
     A Streamlit UI in module app.py that demonstrates the given backend class.
     The file should be ready so that it can be run as-is, in the same directory as the backend module, and it should import the backend class from {module_name}.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
     The output should be valid Python code that can be directly saved to a file and executed.
   agent: frontend_engineer
-  context:
-    - code_task
   output_file: output/src/app.py
 
 test_task:
@@ -47,25 +57,14 @@ test_task:
   agent: test_engineer
   context:
     - code_task
-  output_file: output/src/test_{module_name}
-
-dependencies_task:
-  description: >
-    Write a requirements.txt file that lists the dependencies for the given backend module {module_name} and the streamlit UI in app.py.
-  expected_output: >
-    A requirements.txt file that lists the dependencies for the given backend module and the streamlit UI.
-    IMPORTANT: Output ONLY the raw text without any markdown formatting, code block delimiters, or backticks.
-    The output should be valid text that can be directly saved to a file and executed.
-  agent: devops_engineer
-  context:
-    - code_task
-    - frontend_task
-  output_file: output/src/requirements.txt
+  output_file: output/src/test_{module_name}.py
 
 containerize_task:
   description: >
-    Write a Dockerfile to run the streamlit UI in app.py.  Required dependencies such as streamLit should be installed when the container is built. 
-    The Dockerfile should be in the same directory as the backend module {module_name} and the app.py file.
+    Write a Dockerfile to run the streamlit UI in app.py.  Required dependencies 
+    such as streamLit should be installed when the container is built. 
+    The Dockerfile should be in the same directory as the backend module 
+    {module_name}.py and the app.py file.
   expected_output: >
     A Dockerfile that runs the streamlit UI in app.py.
     IMPORTANT: Output ONLY the raw Dockerfile code without any markdown formatting, code block delimiters, or backticks.
@@ -81,8 +80,9 @@ bash_script_task:
     Write a bash script to launch the docker container that runs the streamlit UI.
   expected_output: >
     A helper bash script to launch the docker container that runs the streamlit UI.
-    IMPORTANT: Output ONLY the raw script code without any markdown formatting, code block delimiters, or backticks.
-    The output should be valid script code that can be directly saved to a file and executed.
+    IMPORTANT: Output ONLY the raw script code without any markdown formatting, 
+    code block delimiters, or backticks. The output should be valid script code 
+    that can be directly saved to a file and executed.
   agent: devops_engineer
   context:
     - containerize_task
@@ -90,13 +90,21 @@ bash_script_task:
 
 powershell_script_task:
   description: >
-    Write a powershell script to launch the docker container that runs the streamlit UI.
+    Write a powershell script to launch the docker container that runs the 
+    streamlit UI.
   expected_output: >
-    A helper powershell script to launch the docker container that runs the streamlit UI.
-    IMPORTANT: Output ONLY the raw script code without any markdown formatting, code block delimiters, or backticks.
-    The output should be valid script code that can be directly saved to a file and executed.
-    IMPORTANT: You must never put a space between the colon and container port like this example
-    docker run --rm -p $HostPort`: $ContainerPort $ImageName
+    A helper powershell script to launch the docker container that runs the 
+    streamlit UI.
+    
+    IMPORTANT: 
+    - Output ONLY the raw script code without any markdown formatting, code block 
+      delimiters, or backticks. The output should be valid script code that can be
+      directly saved to a file and executed.
+    
+    - You must never put a space between the colon and container port like this 
+      example
+      docker run --rm -p $HostPort`: $ContainerPort $ImageName
+  agent: devops_engineer
   context:
     - containerize_task
   output_file: output/src/run.ps1
