@@ -39,6 +39,10 @@ frontend_task:
     
     Here are the requirements: 
     {requirements}
+
+    IMPORTANT:
+    - Always add a named key to each UI element so that they can be referred to
+      by name when testing the UI.
   expected_output: >
     A Streamlit UI in module app.py that demonstrates the given backend class.
     The file should be ready so that it can be run as-is, in the same directory as the backend module, and it should import the backend class from {module_name}.
@@ -72,7 +76,6 @@ containerize_task:
   agent: devops_engineer
   context:
     - frontend_task
-    - dependencies_task
   output_file: output/src/Dockerfile
 
 bash_script_task:
@@ -108,3 +111,20 @@ powershell_script_task:
   context:
     - containerize_task
   output_file: output/src/run.ps1
+
+streamlit_test_task:
+  description: >
+    Write a test for the StreamLit UI using the StreamLit native testing framework 
+    AppTest.  The test should focus on the contents of output/src/app.py
+
+    IMPORTANT:
+    - Always refer to the UI elements by their named keys rather than by index.
+      if they do not have a key, add one.
+  expected_output: >
+    A test for the StreamLit UI using the StreamLit native testing framework 
+    AppTest.
+    IMPORTANT: Output ONLY the raw Python code without any markdown formatting, 
+    code block delimiters, or backticks. The output should be valid Python code 
+    that can be directly saved to a file and executed
+  output_file: output/src/test_app.py
+  agent: streamlit_tester
