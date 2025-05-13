@@ -63,55 +63,6 @@ test_task:
     - code_task
   output_file: output/src/test_{module_name}.py
 
-containerize_task:
-  description: >
-    Write a Dockerfile to run the streamlit UI in app.py.  Required dependencies 
-    such as streamLit should be installed when the container is built. 
-    The Dockerfile should be in the same directory as the backend module 
-    {module_name}.py and the app.py file.
-  expected_output: >
-    A Dockerfile that runs the streamlit UI in app.py.
-    IMPORTANT: Output ONLY the raw Dockerfile code without any markdown formatting, code block delimiters, or backticks.
-    The output should be valid Dockerfile code that can be directly saved to a file and executed.
-  agent: devops_engineer
-  context:
-    - frontend_task
-  output_file: output/src/Dockerfile
-
-bash_script_task:
-  description: >
-    Write a bash script to launch the docker container that runs the streamlit UI.
-  expected_output: >
-    A helper bash script to launch the docker container that runs the streamlit UI.
-    IMPORTANT: Output ONLY the raw script code without any markdown formatting, 
-    code block delimiters, or backticks. The output should be valid script code 
-    that can be directly saved to a file and executed.
-  agent: devops_engineer
-  context:
-    - containerize_task
-  output_file: output/src/run.sh
-
-powershell_script_task:
-  description: >
-    Write a powershell script to launch the docker container that runs the 
-    streamlit UI.
-  expected_output: >
-    A helper powershell script to launch the docker container that runs the 
-    streamlit UI.
-    
-    IMPORTANT: 
-    - Output ONLY the raw script code without any markdown formatting, code block 
-      delimiters, or backticks. The output should be valid script code that can be
-      directly saved to a file and executed.
-    
-    - You must never put a space between the colon and container port like this 
-      example
-      docker run --rm -p $HostPort`: $ContainerPort $ImageName
-  agent: devops_engineer
-  context:
-    - containerize_task
-  output_file: output/src/run.ps1
-
 streamlit_test_task:
   description: >
     Write a test for the StreamLit UI using the StreamLit native testing framework 

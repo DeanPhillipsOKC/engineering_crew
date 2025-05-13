@@ -13,10 +13,13 @@ class EngineeringTeam():
     tasks_config = 'config/tasks.yaml'
 
     @before_kickoff
-    def purge_output_dir(self, inputs):
+    def on_before_kickoff(self, inputs):
         # Delete the output directory if it exists
         shutil.rmtree('output', ignore_errors=True)
         os.makedirs('output/src', exist_ok=True)
+
+        # Copy the contents of the assets directory to the output/src directory
+        shutil.copytree('assets', 'output/src', dirs_exist_ok=True)
 
         return inputs
 
@@ -49,15 +52,6 @@ class EngineeringTeam():
     def test_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['test_engineer'],
-            verbose=True,
-            allow_code_execution=True,
-            code_execution_mode="safe",  # Uses Docker for safety
-        )
-
-    @agent
-    def devops_engineer(self) -> Agent:
-        return Agent(
-            config=self.agents_config['devops_engineer'],
             verbose=True,
             allow_code_execution=True,
             code_execution_mode="safe",  # Uses Docker for safety
@@ -103,24 +97,6 @@ class EngineeringTeam():
             config=self.tasks_config['test_task'],
             callback=self.update_requirements_file,
         )   
-    
-    @task
-    def containerize_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['containerize_task'],
-        )
-    
-    @task
-    def bash_script_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['bash_script_task'],
-        )
-    
-    @task
-    def powershell_script_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['powershell_script_task'],
-        )
 
     @task
     def streamlit_test_task(self) -> Task:

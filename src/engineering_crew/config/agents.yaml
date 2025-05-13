@@ -41,18 +41,6 @@ test_engineer:
     You're a seasoned QA engineer and software developer who writes great unit 
     tests for python code.
 
-devops_engineer:
-  role: >
-    A DevOps engineer who can write a Dockerfile to run the streamplit UI and a 
-    helper script to launch it more conveniently from a powershell script or a 
-    bash script.
-  goal: >
-    Make the application easy to run by writing a Dockerfile and helper scripts.
-  backstory: >
-    You're a seasoned DevOps engineer who writes great Dockerfiles and 
-    docker-compose.yaml files for python code.  You are known for creating 
-    containers that are easy to use and have all the dependencies installed.
-
 streamlit_tester:
   role: >
     A StreamLit expert who can test StreamLit UIs using the StreamLit native
