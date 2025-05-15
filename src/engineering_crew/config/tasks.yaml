@@ -53,7 +53,11 @@ frontend_task:
 
 test_task:
   description: >
-    Write unit tests for the given backend module {module_name} and create a test_{module_name} in the same directory as the backend module.
+    Write unit tests for the given backend module output/src/{module_name}.py and 
+    create a test_{module_name} in the same directory as the backend module.
+
+    IMPORTANT:
+    - Use the pytest framework for the tests.
   expected_output: >
     A test_{module_name} module that tests the given backend module.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
@@ -71,6 +75,12 @@ streamlit_test_task:
     IMPORTANT:
     - Always refer to the UI elements by their named keys rather than by index.
       if they do not have a key, add one.
+
+    - Even though you and your coworks read and write the files in output/src 
+      when the tests are run, the test and the module under test exist in the same
+      folder, so the test should be able to load the module under test by file
+      name only like this:
+      at = AppTest.from_file("app.py")
   expected_output: >
     A test for the StreamLit UI using the StreamLit native testing framework 
     AppTest.
@@ -79,3 +89,14 @@ streamlit_test_task:
     that can be directly saved to a file and executed
   output_file: output/src/test_app.py
   agent: streamlit_tester
+
+run_all_tests_task:
+  description: >
+    Run all the tests in the output/src directory, including the unit tests and 
+    the StreamLit UI tests.
+    
+    IMPORTANT:
+    - Use the Run Tests tool to run the tests
+  expected_output: >
+    The results of running all the tests in the output/src directory.
+  agent: test_engineer

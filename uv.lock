@@ -763,12 +763,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "crewai", extra = ["tools"] },
+    { name = "docker" },
     { name = "streamlit" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "crewai", extras = ["tools"], specifier = ">=0.118.0,<1.0.0" },
+    { name = "docker", specifier = ">=7.1.0" },
     { name = "streamlit", specifier = ">=1.45.0" },
 ]
 
